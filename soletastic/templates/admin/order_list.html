@@ -1,0 +1,53 @@
+{% extends 'admin/admin_dashboard.html' %}
+{% block content %}
+<hr>
+<div class="table-responsive m-5">
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Product Name</th>
+                <th>Size</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in item %}
+
+                <tr>
+                    
+                    <td class="align-middle">
+                        <div class="custom-img-container text-center">
+                            <img src="{{ item.product.image.url }}" alt="" class="img-fluid" style="max-width: 150px; max-height: 150px;">
+                            
+                        </div>
+                    </td>
+                    <td class="align-middle">{{ item.product.name }}</td>
+                    <td class="align-middle">{{ item.size}}</td>
+                    <td class="align-middle">{{ item.qty }}</td>
+                    <td class="align-middle">{{ item.price }}</td>
+                    <td class="align-middle">{{ item.total_price }}</td>
+                </tr>
+            {% endfor %}
+
+            <!-- Additional rows -->
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="align-middle">Subtotal</td>
+                <td class="align-middle">{{order.total_amount}}</td>
+            </tr>
+
+            <tr>
+                <td colspan="2"></td>
+                <td class="align-middle">Payment Method</td>
+                <td class="align-middle">{{order.payment_type}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

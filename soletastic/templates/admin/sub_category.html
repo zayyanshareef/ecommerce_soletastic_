@@ -1,0 +1,196 @@
+{% extends 'admin/admin_dashboard.html' %}
+
+{% block content %}
+
+<hr class="my-5" />
+
+<!-- Hoverable Table rows -->
+
+<div class="card mx-4">
+    <h3 class="card-header">Sub_Category</h3>
+    <div class="table-responsive text-nowrap">
+        <table class="table table-hover">
+
+            
+            <div class="container">
+
+                {% for error in messages %}
+              
+                <p class="text-center" style="color:red">{{error}}</p>
+              
+                {%endfor%}
+              
+              </div>
+            
+
+            <thead>
+                
+                <tr>
+                    <th>Sl.No</th>
+                    <th>Main Category Name</th>
+                    <th>Sub Category Name</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                {% for ca in sub %}
+                <tr>
+                    <td>{{ca.id}}</td>
+                    <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ ca.category.name }}</strong></td>
+                    <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ ca.name }}</strong></td>
+                    <td>
+                        {% if not ca.is_deleted %}
+                        <p>unlisted</p>
+                        {% else %}
+                        <p>Listed</p>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="dropdown">
+                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                <i class="bx bx-dots-vertical-rounded"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changeStatusModal{{ ca.id }}">
+                                    <i class="bx bx-edit-alt me-1"></i> Change status</a>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#updateCategoryModal{{ ca.id }}">
+                                    <i class="bx bx-edit-alt me-1"></i> Update category</a>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal{{ ca.id }}">
+                                    <i class="bx bx-trash me-1"></i> Delete</a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+
+                <!-- Change status confirmation modal -->
+                <div class="modal fade" id="changeStatusModal{{ ca.id }}" tabindex="-1" role="dialog" aria-labelledby="changeStatusModalLabel{{ ca.id }}" aria-hidden="true">
+                    <!-- Modal content goes here -->
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="changeStatusModalLabel{{ ca.id }}">Change Status</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to change the status of category "{{ ca.name }}"?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <a href="{% url 'status_change' ca.id %}" class="btn btn-primary">Change Status</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Update category modal -->
+                <div class="modal fade" id="updateCategoryModal{{ ca.id }}" tabindex="-1" role="dialog" aria-labelledby="updateCategoryModalLabel{{ ca.id }}" aria-hidden="true">
+                    <!-- Modal content goes here -->
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="updateCategoryModalLabel{{ ca.id }}">Update Category</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Your existing update category form goes here -->
+                                <form method="post" action="{% url 'update_sub_category' ca.id %}" id="updateCategoryForm{{ ca.id }}">
+                                    {% csrf_token %}
+                                    <label for="category_name">Category Name:</label>
+                                    <input type="text" name="category_name" class="form-control" value="{{ ca.name }}" required>
+                                    <!-- Add other fields as needed -->
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" form="updateCategoryForm{{ ca.id }}">Save changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete category confirmation modal -->
+                <div class="modal fade" id="deleteCategoryModal{{ ca.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteCategoryModalLabel{{ ca.id }}" aria-hidden="true">
+                    <!-- Modal content goes here -->
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteCategoryModalLabel{{ ca.id }}">Delete Category</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete category "{{ ca.name }}"?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <a href="{% url 'delete_sub_category' ca.id %}" class="btn btn-danger">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete category confirmation modal -->
+
+               
+                
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+       <!-- ............... Add Category Butten.............   -->
+    
+<div class="d-flex">
+    <div class="ms-auto" style="margin-right: 200px ; margin-top:30px">
+        <a class="btn btn-primary dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#updateCategoryModal"  role="button" style="color: white;">Add Sub Category</a>
+       
+    </div>
+</div>
+
+
+ <!-- Add category  modal -->
+
+ <div class="modal fade" id="updateCategoryModal" tabindex="-1" role="dialog" aria-labelledby="updateCategoryModalLabel" aria-hidden="true">
+    <!-- Modal content goes here -->
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateCategoryModalLabel">Add Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'add_sub_category' %}" id="updateCategoryForm">
+                    {% csrf_token %}
+
+                    <label for="category_name">Sub Category:</label>
+                    <input type="text" name="category_name" class="form-control" value="" required>
+
+                    <!-- Dropdown field -->
+                    <div class="mb-3">
+                        
+                        <label for="category_type" class="form-label">Category</label>
+                        
+                        <select class="form-select" name="category_type" id="category_type" required>
+                            {% for main in main%}
+                            <option value="{{main.id}}">{{main.name}}</option>
+                            {% endfor %}
+                            <!-- Add more options as needed -->
+                        </select>
+                       
+                    </div>
+
+
+                    <!-- Add other fields as needed -->
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" form="updateCategoryForm">Add Sub Category</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

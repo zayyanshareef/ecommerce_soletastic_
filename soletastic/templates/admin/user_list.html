@@ -1,0 +1,79 @@
+{% extends 'admin/admin_dashboard.html' %}
+
+     <!-- ............User List............. -->
+{% block content %}
+
+     <hr class="my-5" />
+
+              <!-- Hoverable Table rows -->
+              <div class="card mx-4">
+                <h3 class="card-header">Users List</h3>
+                <div class="table-responsive text-nowrap">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>User Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                     {% for data in user %}
+                      <tr>
+                        <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{data.username}}</strong></td>
+                        <td>
+                          {{data.email}}
+                        </td>
+                        <td>{{data.ph_no}}</td>
+                        
+                        <td>
+                          {%if not data.is_active  %}
+
+                          <p>Blocked</p>
+
+                          {% else %}
+
+                          <p>Active</p>
+
+                          {% endif %}
+                          </td>
+
+                        
+                          
+                        <td>
+                          <div class="dropdown">
+                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                              <i class="bx bx-dots-vertical-rounded"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                             
+                              <a class="dropdown-item" href="{% url 'user_block' data.id %}" onclick="return confirm('Do you want to Block  {{data.username}} ?')"
+                                ><i class="bx bx-edit-alt me-1"></i>Block </a
+                              >
+                              
+                               <a class="dropdown-item" href="{% url 'user_unblock' data.id %}" onclick="return confirm('Do you want to Unblock  {{data.username}} ?')"
+                                ><i class="bx bx-edit-alt me-1"></i>Unblock </a
+                              >
+                              
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                </div>
+              </div>
+              <!--/ Hoverable Table rows -->
+
+              
+     <!-- ............End User List............. -->
+
+     
+
+
+
+{%endblock%}
+
+     

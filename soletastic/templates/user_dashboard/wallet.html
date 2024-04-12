@@ -1,0 +1,213 @@
+{% extends "user_dashboard/dashboard.html" %}
+{% load static %}
+{% block content %}
+<body>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+<body>
+    <section class="banner-area organic-breadcrumb">
+        <div class="container">
+            <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+                <div class="col-first">
+                    <h1>Shopping</h1>
+                    <nav class="d-flex align-items-center">
+                        <a href="#">Home<span class="lnr lnr-arrow-right"></span></a>
+                        <a href="#">Wallet History</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container mt-5 d-flex flex-wrap align-items-center justify-content-center ">
+            <div class="row">
+                <div class="mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title" style=''>
+
+                                </h5>
+                            <h4 class="card-text m-5"> Wallet balace: ₹ {{wallet.wallet_bal}}</h4>
+                            {% csrf_token %}
+                            <input type="number" id="Amount" name="Amount" class="form-control mb-2 mr-sm-2" placeholder="Enter Amount">
+                         <button onclick="RazorpayWallet()" class="btn btn-success btn-block mb-2 mr-sm-2">Recharge Wallet</button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             
+                    </div>
+<div class="container mt-5 ">
+    <h1 class="mb-4 text-center">Wallet History</h1>
+    <h4></h4>
+
+                    <div class="row">
+                        {% if transaction%}
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+
+                      
+                
+                                        <th>Date</th>
+                                        <th></th>
+                                        <th>Transaction</th>
+                                        <th></th>
+                                        <th>Amount</th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in transaction%}
+
+                                        <tr>
+                                            
+                                            <td class="align-middle">
+                                                <div class="custom-img-container text-center">
+                                                    <img src="{{ item.product.image.url }}" alt="" class="img-fluid" style="max-width: 150px; max-height: 150px;">
+                                                    
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">{{item.created_date|date}}</td>
+                                            <td class="align-middle"></td>
+                                            <td class="align-middle">{{ item.resons}}</td>
+                                            <td class="align-middle"></td>
+                                            {% if item.add_or_pay == "add" %}
+                                            <td class="align-middle" style="color: rgb(103, 146, 38);"> + ₹ {{ item.amount }}</td>
+                                            {% else %}
+                                            <td class="align-middle" style="color: red;"> - ₹ {{ item.amount }}</td>
+                                            {% endif %}
+                                        
+                                    {% endfor %}
+                        
+                                    <!-- Additional rows -->
+                                  
+                                </tbody>
+                            </table>
+                        </div>
+              
+        </div>
+        {% else %}
+        <h5>No history available.</h5>
+
+        {% endif %}
+</div>
+<!-- Include Bootstrap JS (optional) -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>  
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+async function RazorpayWallet() {
+    console.log("Inside function");
+    let amountToPay = document.getElementById('Amount').value;
+    console.log(amountToPay);
+
+    if (!amountToPay || isNaN(amountToPay)) {
+        Swal.fire({
+            text: 'Please enter a valid amount',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            customClass: {
+                title: 'text-danger',
+                popup: 'swal2-popup-custom',
+                confirmButton: 'btn btn-danger'
+            },
+            showCancelButton: false,
+            showCloseButton: true,
+            showLoaderOnConfirm: false,
+            timer: 3000
+        });
+    } else {
+        // Make AJAX request to retrieve UPI payment details
+       
+        try {
+            const response = await fetch("/wallet_upi/"); // Corrected URL
+            const data = await response.json();
+
+            console.log(data);
+            console.log(data.username);
+            console.log(data.email);
+            console.log(data.phone);
+            console.log(amountToPay);
+
+            var options = {
+                "key": "rzp_test_RjHyjPSCEGAWxg",
+                "amount": amountToPay * 100,
+                "currency": "INR",
+                "name": "soletastic",
+                "description": "Thank you for buying from us",
+                "image": "https://example.com/your_logo",
+                "handler": function(responseb) {
+                    console.log(responseb.razorpay_payment_id);
+
+                    var token = document.querySelector("[name=csrfmiddlewaretoken]").value;
+                    console.log(token);
+                    var postData = new URLSearchParams();
+                    postData.append("payment_mode", "paid by Razorpay");
+                    postData.append("amount", amountToPay);
+                    postData.append("payment_id", responseb.razorpay_payment_id);
+                    postData.append("csrfmiddlewaretoken", token);
+
+                    fetch("/wallet_recharge/", {
+                        method: "POST",
+                        body: postData,
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Success:', data);
+                        Swal.fire({
+                            text: 'Payment Success',
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                title: 'Success',
+                                popup: 'swal2-popup-custom',
+                                confirmButton: 'btn btn-success'
+                            },
+                            showCancelButton: false,
+                            showCloseButton: true,
+                            showLoaderOnConfirm: false,
+                        });
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 2000);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error occurred while processing payment.');
+                    });
+                },
+                "prefill": {
+                    "name": data.username,
+                    "email": data.email,
+                    "contact": data.phone
+                },
+                "theme": {
+                    "color": "#99cc33"
+                }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error occurred while processing payment.');
+        }
+    }
+}
+
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'admin/admin_dashboard.html' %}
+
+{% block content %}
+{% load static %}
+<hr class="my-5" />
+
+<!-- Hoverable Table rows -->
+<div class="card mx-4">
+    <h5 class="card-header">Orders</h5>
+    
+    <div class="table-responsive text-nowrap">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Users</th>
+                    <th>Order Id</th>
+                    <th>Address</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order, address in value %}
+                <tr>
+                    <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{ order.user.username }}</strong></td>
+                    <td>{{ order.order_id }}</td>
+                    <td>
+                        {{ address.house }},
+                        {{ address.street }},
+                        {{ address.city }},
+                        {{ address.country }}
+                        {{ address.pin_code }}
+                        {{ address.phone }}
+                        {{ address.name }}
+                    </td>
+                    <td>₹ {{ order.total_amount }}</td>
+                   
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn  dropdown-toggle ml-5" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ order.status }}</button>
+                            <ul class="dropdown-menu">
+                                <form  method="post" action="{% url 'order_status' order.id %}">
+                                    {% csrf_token %}
+                                    {% if order.status == 'pending' %}
+                                    <button class="dropdown-item btn" type="submit" name="action" value="processing"><i><span class="badge bg-label-primary me-1">Processing</span></i></button>
+                                    {% elif order.status == 'processing' %}
+                                    <button class="dropdown-item btn" type="submit" name="action" value="shipped"><i><span class="badge bg-label-info me-1">Shipped</span></i></button>
+                                    {% elif order.status == 'shipped' %}
+                                    <button class="dropdown-item btn" type="submit" name="action" value="delivered"><i><span class="badge bg-label-success me-1">Delivered</span></i></button>
+                                    {% elif order.status == 'cancelled' %}
+                                    <button class="dropdown-item btn" type="submit" name="action" value="refunded"><i><span class="badge bg-label-dark me-1">Refunded</span></i></button>
+                                    {% endif %}
+                                </form>
+                            </ul>
+                        </div>
+                    </td>
+                    <td>
+                        <a class="btn btn-primary" href="{% url 'order_list' order.id %}">
+                            <i class="bx bx-show me-1"></i> view
+                        </a>
+                        <a class="btn btn-danger" href="{% url 'cancel_order' order.id %}">
+                            <i class="bx bx-x-circle me-1"></i> Cancel Order
+                        </a>
+                        </a>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<!--/ Hoverable Table rows -->
+
+<hr class="my-5" />
+
+{% endblock %}

@@ -1,0 +1,959 @@
+{% extends "user_dashboard/dashboard.html" %}
+{% load static %}
+{% block content %}
+
+
+<style>
+    .btn-primary {
+        padding: 10px 20px;
+        /* Adjust padding to increase button size */
+        font-size: 16px;
+        /* Adjust font size for better visibility */
+        /* Add any other styling you desire */
+    }
+
+    .list_2 li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.delivery-charge-text {
+    font-weight: bold;
+}
+
+.delivery-charge-amount {
+    font-weight: bold;
+    text-align: right;
+}
+.list_2 li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-text {
+    font-weight: bold;
+}
+
+.total-text {
+    font-weight: bold;
+    text-align: right;
+}
+.list_2 li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.subtotal-text {
+    font-weight: bold;
+}
+
+.subtotal-amount {
+    font-weight: bold;
+    text-align: right;
+}
+
+
+
+</style>
+<!-- coupon-area-start -->
+<section class="coupon-area pt-120 pb-30">
+
+</section>
+<!-- coupon-area-end -->
+
+<!-- checkout-area-start -->
+<section class="checkout_area section_gap">
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-6">
+
+                <form id="couponForm" action="{% url 'checkout' %}" method="post">
+                    {% csrf_token %}
+
+                    <div class="input-group mb-3">
+
+                        <select class="form-control" id="couponSelect" name="coupon_id">
+                            <option value="" disabled selected>Select Coupon</option>
+                            {% for coupon in coupon %}
+                            <option value="{{ coupon.id }}">{{ coupon.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary">Apply</button>
+                            <a href="" class="btn btn-danger ml-1">Clear</a>
+                        </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <form id="orderForm" method="post" action="{% url 'user_order' %}">
+        {% csrf_token %}
+
+
+
+        <!-- </form> -->
+
+        </div>
+        </div>
+        </div>
+
+
+
+
+        <div class="container-fuid mx-5">
+            <div class="row">
+                <div class="col-lg-8">
+                    <form>
+                        <input type="hidden" id="pay" name="pay" value="0">
+                        <input type="hidden" id="wallet" name="wallet" value="0">
+                        <input type="hidden" id="amount" name="amount" value="<%= data.total %>">
+
+
+
+                        <div class="container">
+                            <h3 class="mt-3">Choose Address:</h3>
+
+                            <div class="row">
+                                {% csrf_token %}
+                                {% for user in address reversed %}
+                                <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="address" id="address"
+                                            value="{{user.id}}"     >
+
+                                        <label class="form-check-label" for="address{{user.id}}">
+                                            <div class="card">
+                                                <h5 class="card-header">Address: {{ user.location }}</h5>
+                                                <div class="card-body">
+                                                    <h5 name="name" class="card-title"> {{ user.name }}</h5>
+                                                    <!-- <p class="card-title">Email: {{ user.email }} </p> -->
+                                                    <p name="phone" class="card-title">Phone: {{ user.phone }} </p>
+                                                    <p class="card-title">House: {{ user.house }} </p>
+                                                    <p class="card-text">City: {{ user.city }}</p>
+                                                    <p class="card-text">State: {{ user.state }}</p>
+                                                    <p class="card-text">Zip Code: {{ user.pin_code }}</p><br>
+                                                    <button type="button" class="btn btn-sm btn-primary editBtn"
+                                                        data-toggle="modal" data-target="#editProfileModal"
+                                                        data-address-id="{{user.address_id}}" data-name="{{user.name}}"
+                                                        data-email="{{user.email}}" data-phone="{{user.phone}}"
+                                                        data-house="{{user.house}}" data-street="{{user.street}}"
+                                                        data-city="{{user.city}}" data-state="{{user.state}}"
+                                                        data-country="{{user.country}}"
+                                                        data-pin_code="{{user.pin_code}}"
+                                                        data-location="{{user.location}}" data-id="{{user.id}}">
+                                                        <i class="edit"></i>Edit addres
+                                                    </button>
+                                                </div>
+                                            </div>
+
+
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {% endfor %}
+                            </div>
+                        </div>
+
+
+
+                        <!--         
+                   <-- Add Address Button -->
+                        <br>
+                        <a href="#addAddressModal" class="btn btn-primary btn-md ml-3" data-toggle="modal"
+                            data-target="#addAddressModal">Add Address</a>
+
+                        <!-- </form> -->
+                </div>
+
+
+                <div class="col-lg-4" style="background-color: beige;">
+                    <div class="container">
+
+                        {% for error in messages %}
+
+                        <p class="text-center" style="color:red">{{error}}</p>
+
+                        {%endfor%}
+
+
+                    </div>
+                    <div class="order_box">
+
+                        <h2>Your Order</h2>
+
+                        <ul class="list ">
+                            <li class="m-5">
+                                <div class="product-text">Product</div>
+                                <div class="total-text">Total</div>
+                            </li>
+                            {% for cart in value%}
+
+                            <li class="m-5"><a href="#">{{cart.product.name}}<span class="middle"><span class="m-5"></span>x</span><span class="m-5"></span>{{cart.qty}}<span class="m-5"></span><span
+                                        class="last">{{cart.total_price}}</span></a></li>
+                            {% endfor %}
+                        </ul>
+                        <br>
+                        <ul class="list list_2">
+                            {% if sub_total %}
+
+                            <li class="m-5">
+                                <div class="subtotal-text">Subtotal</div>
+                                <div class="subtotal-amount">₹{{ sub_total }}</div>
+                            </li>
+
+                            {% endif %}
+                            {% if discount %}
+                            <li><a href="#">Discount <span style="color: green;">₹ {{discount}} <div id="discount"
+                                            style="display: inline;"></div></span></a></li>
+                            {% endif %}
+                            {% if coupon_amount %}
+                            <li><a href="#">Coupon <span style="color: green;">₹ {{coupon_amount.discount}} <div
+                                            id="discount" style="display: inline;"></div></span></a></li>
+                            {% endif %}
+                            <li class="m-5">
+                                <div class="delivery-charge-text">Delivery Charge</div>
+                                <div class="delivery-charge-amount">₹129</div>
+                            </li>
+
+
+                            <li class="m-5"><a href="#" style="font-weight:bold ;" >Total <span class="m-5"></span><span class="ms-5"></span><span class="m-5"></span>₹ {{ total }}</span></a></li>
+                        </ul>
+                        <h4 class="mt-3">Choose Payment Method</h4>
+                        <div class="payment_item">
+
+
+                            <div class="radion_btn">
+                                <input type="radio" id="f-option6" name="paymentMethod" value="cashOnDelivery">
+                                    <!-- onclick="handlePaymentMethodSelection()" > -->
+                                <label for="f-option6">Cash on Delivery</label>
+                                <div class="check"></div>
+
+                            </div>
+                            
+
+                            <div class="radion_btn">
+                                <input type="radio" id="f-option7" name="paymentMethod" value="wallet"
+                                    onclick="handlePaymentMethodSelection()" required>
+                                <label for="f-option7">Wallet</label>
+                                <div class="check"></div>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="f-option7" name="selector">
+                        <label for="f-option4">Use Wallet </label>
+                        <div class="creat_account">
+                            <input type="checkbox" id="f-option4" name="selector">
+                            <label for="f-option4">I’ve read and accept the </label>
+                            <a href="#"></a>
+                        </div>
+                       
+                        <button type="submit" class="btn-primary m-5" id="proceed">Proceed to
+                            Order</button>
+
+
+              </form>
+
+              <div class="radion_btn ">
+                <input type="radio" id="f-option5" name="paymentMethod" value="upi" onclick="handlePaymentMethodSelection()"
+                    required>
+                <label for="f-option5">UPI PAYMENT</label>
+                <div class="check"></div>
+            </div>
+
+
+    
+
+
+    </div>
+    </div>
+    </div>
+    </div>
+
+</section>
+
+<div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-labelledby="editProfileModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">Edit Address</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form for editing profile -->
+                <form id="editProfileForm" action="{% url 'edit_checkout_address' %}" method="post">
+                    <!-- Fields for editing profile -->
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="editName">Name:</label>
+                        <input type="text" class="form-control" id="editName" name="editName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email:</label>
+                        <input type="email" class="form-control" id="editEmail" name="editEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editphone">Phone no:</label>
+                        <input type="text" class="form-control" id="editphone" name="editphone" required>
+                    </div>
+                    <!-- Add other fields for editing profile -->
+                    <div class="form-group">
+                        <label for="editHouse">House Name:</label>
+                        <input type="text" class="form-control" id="editHouse" name="editHouse" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStreet">Street:</label>
+                        <input type="text" class="form-control" id="editStreet" name="editStreet" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editcity">City:</label>
+                        <input type="text" class="form-control" id="editcity" name="editcity" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editstate">State:</label>
+                        <input type="text" class="form-control" id="editstate" name="editstate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editcountry">Country:</label>
+                        <input type="text" class="form-control" id="editcountry" name="editcountry" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editpin_code">Pin Code:</label>
+                        <input type="text" class="form-control" id="editpin_code" name="editpin_code" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editlocation">Location:</label>
+                        <input type="text" class="form-control" id="editlocation" name="editlocation" required>
+                    </div>
+                    <!-- Add more fields as needed -->
+                    <div class="form-group">
+                        <label for="editid"></label>
+                        <input type="hidden" class="form-control" id="editid" name="editid" required>
+                    </div>
+
+                    <input type="hidden" id="editAddressId" name="editAddressId">
+
+
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Add Address Modal -->
+<div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAddressModalLabel">Add Address</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Address Form -->
+                <form id="addAddressForm" action="{% url 'checkout_add_address' %}" method="post">
+                    {% csrf_token %}
+                    <!-- Address Inputs -->
+                    <div class="form-group">
+                        <label for="add_name">Name:</label>
+                        <input type="text" class="form-control" id="add_name" name="add_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add_email">Email:</label>
+                        <input type="email" class="form-control" id="add_email" name="add_email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add_phone">Phone:</label>
+                        <input type="tel" class="form-control" id="add_phone" name="add_phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add_house">Address:</label>
+                        <input type="text" class="form-control" id="add_house" name="add_house" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add_street">Street:</label>
+                        <input type="text" class="form-control" id="add_street" name="add_street">
+                    </div>
+                    <div class="form-group">
+                        <label for="add_city">City:</label>
+                        <input type="text" class="form-control" id="add_city" name="add_city" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add_state">State:</label>
+                        <input type="text" class="form-control" id="add_state" name="add_state" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add_country">Country:</label>
+                        <input type="text" class="form-control" id="add_country" name="add_country">
+                    </div>
+                    <div class="form-group">
+                        <label for="add_pin_code">pin code:</label>
+                        <input type="text" class="form-control" id="add_pin_code" name="add_pin_code" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add_location">Location:</label>
+                        <input type="text" class="form-control" id="add_location" name="add_location">
+                    </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="cancel" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" id="addAddressBtn">Add Address</button>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+
+<!-- checkout-area-end -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    
+    $('.editBtn').on('click', function () {
+        var modal = $('#editProfileModal');
+
+        modal.find('#editName').val($(this).data('name'));
+        modal.find('#editEmail').val($(this).data('email'));
+        modal.find('#editphone').val($(this).data('phone'));
+        modal.find('#editHouse').val($(this).data('house'));
+        modal.find('#editStreet').val($(this).data('street'));
+        modal.find('#editcity').val($(this).data('city'));
+        modal.find('#editstate').val($(this).data('state'));
+        modal.find('#editcountry').val($(this).data('country'));
+        modal.find('#editpin_code').val($(this).data('pin_code'));
+        modal.find('#editlocation').val($(this).data('location'));
+        modal.find('#editid').val($(this).data('id'));
+        
+    });
+</script>
+<script>
+    $('#editProfileModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var addressId = button.data('address-id');
+
+        
+        $('#editAddressId').val(addressId);
+        
+    });
+
+</script>
+
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var newAddressForm = document.getElementById('newAddressForm');
+        var newAddressRadio = document.getElementById('newAddressRadio');
+        var newAddressModal = new bootstrap.Modal(document.getElementById('newAddressModal'));
+
+        newAddressRadio.addEventListener('change', function () {
+            newAddressForm.style.display = newAddressRadio.checked ? 'block' : 'none';
+            if (newAddressRadio.checked) {
+                newAddressModal.show();
+            }
+        });
+    });
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
+<!-- <script>
+    function toggleRadioButton(radioButton) {
+        if (radioButton.checked) {
+            radioButton.checked = false;
+        } else {
+            radioButton.checked = true;
+        }
+    }
+</script>
+<script>
+    
+    function autoSelectLastAddress() {
+        const selectedAddress = document.querySelector('input[name="address"]:checked');
+        if (!selectedAddress) {
+            
+            const addressInputs = document.querySelectorAll('input[name="address"]');
+            if (addressInputs.length > 0) {
+                const lastAddressInput = addressInputs[addressInputs.length - 1];
+                lastAddressInput.checked = true;
+            }
+        }
+    }
+
+    
+    window.onload = function () {
+        autoSelectLastAddress();
+    };
+</script>
+
+<script>
+    function handlePaymentMethodSelection() {
+        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+        if (selectedPaymentMethod) {
+            const hiddenInput = document.getElementById('pay');
+            hiddenInput.value = selectedPaymentMethod.value;
+        }
+    }
+    console.log(selectedPaymentMethod, "..........34")
+    async function proceedToOrder() {
+
+        console.log("wjeabfqdckuawjsdvcb");
+        var selectedAddress = document.querySelector('input[name="address"]:checked');
+        var selectedpayment = document.querySelector('input[name="paymentMethod"]:checked');
+        var payment = document.getElementById('pay').getAttribute('value')
+
+
+       
+        window.onload = function () {
+            autoSelectLastAddress();
+        };
+
+        if (!selectedAddress) {
+            Swal.fire({
+                //   title: 'Error!',
+                text: 'Select the delivery address',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                customClass: {
+                    title: 'text-danger',
+                    popup: 'swal2-popup-custom',
+                    confirmButton: 'btn btn-danger'
+                },
+                showCancelButton: false,
+                showCloseButton: true,
+                showLoaderOnConfirm: false,
+                timer: 3000
+            });
+
+        } else if (payment == '0') {
+            Swal.fire({
+                //   title: 'Error!',
+                text: 'Select the payment Method',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                customClass: {
+                    title: 'text-danger',
+                    popup: 'swal2-popup-custom',
+                    confirmButton: 'btn btn-danger'
+                },
+                showCancelButton: false,
+                showCloseButton: true,
+                showLoaderOnConfirm: false,
+                timer: 3000
+            });
+
+        }
+
+
+        else if (selectedpayment.value == 'upi') {
+            var totalValue = document.getElementById('total')
+            console.log('Total Value:', totalValue);
+
+            $.ajax({
+                method: "GET",
+                url: "/pay_with_upi",
+                success: function (response) {
+                    console.log(response);
+                    console.log(response.username);
+                    console.log(response.email);
+                    console.log(response.phone);
+
+
+
+                    var options = {
+                        "key": "rzp_test_NqH0AQ919F3Q3B", 
+                        "amount": response.total_amount * 100, 
+                        "currency": "INR",
+                        "name": "Playstore",
+                        "description": "Thank you for buying for us",
+                        "image": "https://example.com/your_logo",
+                        
+                        "handler": function (responseb) {
+
+                            console.log(responseb.razorpay_payment_id)
+
+
+                            var token = $("[name='csrfmiddlewaretoken']").val();
+                            var selectedAddress = document.querySelector('input[name="address"]:checked').value;
+
+                            let address_id = selectedAddress
+
+                            var data = {
+                                "payment_mode": "paid by Razorpay",
+                                "payment_id": responseb.razorpay_payment_id,
+                                "address_id": address_id, 
+                                "csrfmiddlewaretoken": token,
+                            };
+
+
+
+                            $.ajax({
+                                method: "POST",
+                                url: "/user_order",
+                                data: data,
+                                success: function (response) {
+
+                                    console.log('Success:', response);
+                                    window.location.href = "{% url 'confirmation' %}";
+                                    
+                                },
+
+                            });
+
+                        },
+                        "prefill": {
+                            "name": response.username,
+                            'email': response.email,
+                            "contact": response.phone
+                        },
+
+                        "theme": {
+                            "color": "#99cc33"
+                        }
+                    };
+                    var rzp1 = new Razorpay(options);
+                    rzp1.open();
+
+
+                }
+            });
+
+
+        }
+        else if (selectedpayment.value == "cashOnDelivery") {
+
+            console.log(selectedpayment.value, "000000");
+            document.getElementById('orderForm')
+            document.getElementById('orderForm')
+
+
+            document.getElementById('orderForm').submit();
+
+        }
+        else if (selectedpayment.value == "wallet") {
+
+            console.log(selectedpayment.value, "............25")
+
+            console.log(selectedpayment.value, "000000");
+            document.getElementById('orderForm')
+            document.getElementById('orderForm')
+
+
+            document.getElementById('orderForm').submit();
+        }
+
+
+
+    }
+
+
+
+
+    var checkbox = document.getElementById('f-option7');
+
+    const amount = document.getElementById('total').textContent.trim();
+    checkbox.addEventListener('click', function () {
+        if (checkbox.checked) {
+            wallet()
+        }
+        else {
+            document.getElementById('total').innerText = `${amount}`;
+            document.getElementById('amount').value = `${amount}`;
+            document.getElementById('wallet').value = 0
+
+
+        }
+    })
+
+    async function wallet() {
+        console.log("coooo");
+        const amount = document.getElementById('total').textContent.trim();
+        const response = await fetch(`/wallettransaction`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                amount: amount
+            })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            console.log("000000");
+            document.getElementById('total').innerText = 0;
+            document.getElementById('f-option5').setAttribute('disabled', true)
+            document.getElementById('f-option5').removeAttribute('required')
+            document.getElementById('f-option6').setAttribute('disabled', true)
+            document.getElementById('f-option6').removeAttribute('required')
+            document.getElementById('orderForm').action = '/order';
+            document.getElementById('orderForm').method = 'post';
+            console.log('lll', amount);
+            document.getElementById('proceed').onclick = function () {
+                formsubmit(amount)
+            }
+
+        }
+        else {
+            console.log("cccc");
+            const amount1 = document.getElementById('amount').value
+            document.getElementById('total').innerText = `${amount1 - data.amount}`;
+            document.getElementById('amount').value = `${amount1 - data.amount}`;
+            document.getElementById('wallet').value = `${data.amount}`;
+
+            console.log("came else but....");
+        }
+
+
+    }
+    function formsubmit(amount) {
+        document.getElementById('pay').value = 'wallet'
+
+        document.getElementById('wallet').value = amount
+        console.log("chaaaa");
+        document.getElementById('orderForm').submit();
+    }
+
+
+</script> -->
+<script>
+    function toggleRadioButton(radioButton) {
+        radioButton.checked = !radioButton.checked;
+    }
+
+    function autoSelectLastAddress() {
+        const selectedAddress = document.querySelector('input[name="address"]:checked');
+        if (!selectedAddress) {
+            const addressInputs = document.querySelectorAll('input[name="address"]');
+            if (addressInputs.length > 0) {
+                const lastAddressInput = addressInputs[addressInputs.length - 1];
+                lastAddressInput.checked = true;
+            }
+        }
+    }
+
+    window.onload = function () {
+        autoSelectLastAddress();
+    };
+
+    function handlePaymentMethodSelection() {
+        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+        if (selectedPaymentMethod) {
+            const hiddenInput = document.getElementById('pay');
+            hiddenInput.value = selectedPaymentMethod.value;
+        }
+    }
+
+    function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+
+    document.addEventListener('DOMContentLoaded',function(){
+        document.getElementById('proceed').addEventListener('click', proceedToOrder);
+        async function proceedToOrder() {
+        var selectedAddress = document.querySelector('input[name="address"]:checked');
+        var selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+        var payment = document.getElementById('pay').getAttribute('value');
+        const csrfToken = getCookie('csrftoken');
+        console.log("--",selectedAddress,"--",selectedPayment,"--",payment)
+
+        if (!selectedAddress) {
+            Swal.fire({
+                text: 'Select the delivery address',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                customClass: {
+                    title: 'text-danger',
+                    popup: 'swal2-popup-custom',
+                    confirmButton: 'btn btn-danger'
+                },
+                showCancelButton: false,
+                showCloseButton: true,
+                showLoaderOnConfirm: false,
+                timer: 3000
+            });
+        } else if (payment == '0') {
+            Swal.fire({
+                text: 'Select the payment Method',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                customClass: {
+                    title: 'text-danger',
+                    popup: 'swal2-popup-custom',
+                    confirmButton: 'btn btn-danger'
+                },
+                showCancelButton: false,
+                showCloseButton: true,
+                showLoaderOnConfirm: false,
+                timer: 3000
+            });
+        } else if (selectedPayment.value == 'upi') {
+            try {
+                const response = await fetch("/pay_with_upi/", { method: "GET" });
+                const data = await response.json();
+                console.log(data);
+
+                var options = {
+                    "key": "rzp_test_RjHyjPSCEGAWxg",
+                    "amount": data.total_amount * 100,
+                    "currency": "INR",
+                    "name": "Soletastic",
+                    "description": "Thank you for buying for us",
+                    "image": "https://example.com/your_logo",
+                    "handler": function (responseb) {
+                        console.log(responseb.razorpay_payment_id);
+
+                        var token = document.querySelector('[name="csrfmiddlewaretoken"]').value;
+                        var selectedAddress = document.querySelector('input[name="address"]:checked').value;
+                        let address_id = selectedAddress;
+
+                        console.log(token)
+                        console.log(selectedAddress)
+                        console.log(address_id)
+
+                        var data = {
+                            "payment_mode": "paid by Razorpay",
+                            "payment_id": responseb.razorpay_payment_id,
+                            "address_id": selectedAddress,
+                            "csrfmiddlewaretoken": token,
+                        };
+
+
+                         fetch("/user_order/", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(response => {
+                        console.log('Success:', response);
+                        window.location.href = "{% url 'confirmation' %}";
+                    })
+                    .catch(error => {
+                        console.error('There has been a problem with your fetch operation:', error);
+                    });
+
+                    },
+                    "prefill": {
+                        "name": data.username,
+                        'email': data.email,
+                        "contact": data.phone
+                    },
+                    "theme": {
+                        "color": "#99cc33"
+                    }
+                };
+                var rzp1 = new Razorpay(options);
+                rzp1.open();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        } else if (selectedPayment.value == "cashOnDelivery") {
+            document.getElementById('orderForm').submit();
+        } else if (selectedPayment.value == "wallet") {
+            document.getElementById('orderForm').submit();
+        }
+    }
+
+    })
+    var checkbox = document.getElementById('f-option7');
+    const amount = document.getElementById('total').textContent.trim();
+    checkbox.addEventListener('click', function () {
+        if (checkbox.checked) {
+            wallet();
+        } else {
+            document.getElementById('total').innerText = `${amount}`;
+            document.getElementById('amount').value = `${amount}`;
+            document.getElementById('wallet').value = 0;
+        }
+    });
+
+    async function wallet() {
+        const amount = document.getElementById('total').textContent.trim();
+        try {
+            const response = await fetch(`/wallettransaction`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    amount: amount
+                })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('total').innerText = 0;
+                document.getElementById('f-option5').setAttribute('disabled', true);
+                document.getElementById('f-option5').removeAttribute('required');
+                document.getElementById('f-option6').setAttribute('disabled', true);
+                document.getElementById('f-option6').removeAttribute('required');
+                document.getElementById('orderForm').action = '/order';
+                document.getElementById('orderForm').method = 'post';
+                document.getElementById('proceed').onclick = function () {
+                    formsubmit(amount);
+                }
+            } else {
+                const amount1 = document.getElementById('amount').value;
+                document.getElementById('total').innerText = `${amount1 - data.amount}`;
+                document.getElementById('amount').value = `${amount1 - data.amount}`;
+                document.getElementById('wallet').value = `${data.amount}`;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    function formsubmit(amount) {
+        document.getElementById('pay').value = 'wallet';
+        document.getElementById('wallet').value = amount;
+        document.getElementById('orderForm').submit();
+    } 
+ </script> 
+
+
+
+
+
+{% endblock %}

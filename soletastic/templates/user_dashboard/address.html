@@ -1,0 +1,345 @@
+{% extends "user_dashboard/dashboard.html" %}
+
+{% block content %}
+
+
+<!-- Start Banner Area -->
+<section class="banner-area organic-breadcrumb">
+    <div class="container">
+        <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+            <div class="col-first">
+                <h1></h1>
+                <nav class="d-flex align-items-center">
+                    <a href="#">Home<span class="lnr lnr-arrow-right"></span></a>
+                    <a href="#">Profile</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Banner Area -->
+
+<!-- Main Content Container with Shadow -->
+<div class="container mt-5 shadow p-1 mb-1 bg-white rounded">
+
+    <!-- Profile Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white mb-4">
+        <div class="container">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'user_profile'%}">User Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="#">Addresses</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'change_password' %}">Change Password</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Profile Section -->
+    <section class="profile-section ">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h3 class="text-center">User Address</h3>
+
+                <div class="container">
+
+                    {% for error in messages %}
+
+                    <p class="text-center" style="color:red">{{error}}</p>
+
+                    {%endfor%}
+
+                
+                </div>
+
+                    {% for user in value %}
+
+                    <div class="container">
+                        <div class="card mt-3">
+                            <div class="d-flex justify-content-end card-header">
+                                <h5 class="mb-0">Address: {{user.location}}</h5>
+                                <div class="ml-auto">
+                                    <!-- Edit Icon with Edit Modal Trigger -->
+                                    <button type="button" class="btn btn-sm btn-primary editBtn" data-toggle="modal" data-target="#editProfileModal"
+                                    data-address-id="{{user.address_id}}"
+                                    data-name="{{user.name}}"
+                                    data-email="{{user.email}}"
+                                    data-phone="{{user.phone}}"
+                                    data-house="{{user.house}}"
+                                    data-street="{{user.street}}"
+                                    data-city="{{user.city}}"
+                                    data-state="{{user.state}}"
+                                    data-country="{{user.country}}"
+                                    data-pin_code="{{user.pin_code}}"
+                                    data-location="{{user.location}}"
+                                    data-id="{{user.id}}"
+                            >
+                                <i class="edit"></i> Edit
+                            </button>
+                            
+                            
+                            
+                            
+                                        <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button> -->
+                                        
+                                    </button>
+                                    <!-- Delete Icon with Confirmation Modal Trigger -->
+                                    
+                                    <a href="" class="btn btn-sm btn-danger ml-2" data-toggle="modal" data-target="#deleteModal">
+                                        <i class="delete"></i> Delete
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="card-body">
+                                <!-- Display Address Information -->
+                                <h5 class="card-title">Name:{{user.name }}</h5>
+                                <p class="card-text">Email:{{user.email}} </p>
+                                <p class="card-text">Mobile No:{{user.phone}}</p>
+                                <p class="card-text">House Name:{{user.house}} </p>
+                                <p class="card-text">Street: {{user.street}}</p>
+                                <p class="card-text">City:{{user.city}}</p>
+                                <p class="card-text">State: {{user.state}}</p>
+                                <p class="card-text">Country:{{user.country}} </p>
+                                <p class="card-text">Zip Code: {{user.pin_code}}</p>
+                                <!-- <p class="card-text">Zip Code: {{user.id}}</p> -->
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModalLabel">Delete Address</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete this address?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <!-- Use Django template tag to generate the delete link -->
+                                    <a href="{% url 'delete_address' user.id%}" class="btn btn-danger">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+ 
+
+            
+                    
+                    {% endfor %}
+
+
+                                            
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form for editing profile -->
+                <form id="editProfileForm" action="{% url 'edit_address' %}" method="post">
+                    <!-- Fields for editing profile -->
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="editName">Name : </label>
+                        <input type="text" class="form-control" id="editName" name="editName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email : </label>
+                        <input type="email" class="form-control" id="editEmail" name="editEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editphone">Phone no : </label>
+                        <input type="text" class="form-control" id="editphone" name="editphone" required>
+                    </div>
+                    <!-- Add other fields for editing profile -->
+                    <div class="form-group">
+                        <label for="editHouse">Address : </label>
+                        <input type="text" class="form-control" id="editHouse" name="editHouse" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStreet">Street : </label>
+                        <input type="text" class="form-control" id="editStreet" name="editStreet" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editcity">City : </label>
+                        <input type="text" class="form-control" id="editcity" name="editcity" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editstate">State :  </label>
+                        <input type="text" class="form-control" id="editstate" name="editstate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editcountry">Country :  </label>
+                        <input type="text" class="form-control" id="editcountry" name="editcountry" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editpin_code">Pin Code :  </label>
+                        <input type="text" class="form-control" id="editpin_code" name="editpin_code" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editlocation">Location :  </label>
+                        <input type="text" class="form-control" id="editlocation" name="editlocation" required>
+                    </div>
+                    <!-- Add more fields as needed -->
+                    <div class="form-group">
+                        <label for="editid"></label>
+                        <input type="hidden" class="form-control" id="editid" name="editid" required>
+                    </div>
+
+                    <input type="hidden" id="editAddressId" name="editAddressId">
+
+
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+   
+
+
+
+
+                    <!-- Add Address Button -->
+                    <br>
+                    <a href="#addAddressModal" class="btn btn-primary btn-md ml-3" data-toggle="modal" data-target="#addAddressModal">Add Address</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+
+
+
+<!-- Add Address Modal -->
+<div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAddressModalLabel">Add Address</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Add your add address modal content here -->
+                <form id="add_address" action="{% url 'add_address'%}" method="post" >
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="addName">Name:</label>
+                        <input type="text" name="name" class="form-control" id="addName" placeholder="Enter Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addEmail">Email:</label>
+                        <input type="email" name="email" class="form-control" id="addEmail" placeholder="Enter Email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addMobile">Mobile No:</label>
+                        <input type="tel" name="phone" class="form-control" id="addMobile" placeholder="Enter Mobile No" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addHouseName">House Name:</label>
+                        <input type="text" name="house" class="form-control" id="addHouseName" placeholder="Enter House Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addStreet">Street:</label>
+                        <input type="text" name="street" class="form-control" id="addStreet" placeholder="Enter Street" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addCity">City:</label>
+                        <input type="text" name="city" class="form-control" id="addCity" placeholder="Enter City" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addState">State:</label>
+                        <input type="text" name="state" class="form-control" id="addState" placeholder="Enter State" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addCountry">Country:</label>
+                        <input type="text" name="country" class="form-control" id="addCountry" placeholder="Enter Country" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addZipCode">Zip Code:</label>
+                        <input type="text" name="pin_code" class="form-control" id="addZipCode" placeholder="Enter Zip Code" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addZipCode">Home / Office:</label>
+                        <input type="text" name="location" class="form-control" id="addlocation" placeholder="Enter Home / Office" required>
+                    </div>
+                    <input type="hidden" id="editAddressId" name="editAddressId">
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Add Address</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<!-- ... (previous code remains unchanged) ... -->
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    // Update the edit modal fields based on the clicked edit button
+    $('.editBtn').on('click', function () {
+        var modal = $('#editProfileModal');
+
+        modal.find('#editName').val($(this).data('name'));
+        modal.find('#editEmail').val($(this).data('email'));
+        modal.find('#editphone').val($(this).data('phone'));
+        modal.find('#editHouse').val($(this).data('house'));
+        modal.find('#editStreet').val($(this).data('street'));
+        modal.find('#editcity').val($(this).data('city'));
+        modal.find('#editstate').val($(this).data('state'));
+        modal.find('#editcountry').val($(this).data('country'));
+        modal.find('#editpin_code').val($(this).data('pin_code'));
+        modal.find('#editlocation').val($(this).data('location'));
+        modal.find('#editid').val($(this).data('id'));
+        // Add more lines for other fields
+
+        // Add other fields here if needed
+    });
+</script>
+<script>
+    $('#editProfileModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var addressId = button.data('address-id');
+    
+        // Populate modal fields
+        $('#editAddressId').val(addressId);
+        // Populate other fields as needed
+    });
+    
+</script>
+
+
+
+
+{% endblock %}

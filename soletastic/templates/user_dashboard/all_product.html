@@ -1,0 +1,332 @@
+{% extends "user_dashboard/dashboard.html" %}
+{% load static %}
+{% block content %}
+<style>
+
+    /* For larger screens */
+       /* For larger screens */
+       @media (min-width: 992px) {
+        #notFoundImage {
+            max-width: 100%; /* Image will be at most 100% of the container width */
+            height: auto; /* Allow the image to adjust its height accordingly */
+        }
+    }
+    
+    /* For smaller screens like mobile */
+    @media (max-width: 767px) {
+        #notFoundImage {
+            max-width: 100%; /* Ensure the image doesn't exceed the width of its container */
+            width: 300px; /* Set the maximum width of the image to 300 pixels */
+            height: auto; /* Maintain the aspect ratio of the image */
+        }
+    }
+    
+    
+</style>
+    
+    
+    <section class="banner-area organic-breadcrumb">
+        <div class="container">
+            <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+                <div class="col-first">
+                    <h1>Shopping</h1>
+                    <nav class="d-flex align-items-center">
+                        <a href="{% url 'all_product' %}">All Product<span class="lnr lnr-arrow-right"></span></a>
+                        <a href="{% url 'dashboard' %}">Home</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End Banner Section -->
+    
+    <!-- Related to sidebar and nav of shopping -Start  -->
+    <br>
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-3 col-lg-4 col-md-5">
+                <div class="sidebar-categories">
+                    <div class="head">Browse Categories</div>
+                    <!-- <select  id="filter" onchange="finalurl2()">
+                        <option class="lnr lnr-arrow-right" value="all">ALL PRODUCT</option>
+                        {% for i in sub %}
+                            {% if i.is_deleted %}
+                                <option class="lnr lnr-arrow-right" value="{{ i.name }}">{{ i.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select> -->
+                    <select name="col-xl-3 col-lg-4 col-md-5" id="filter" onchange="location = finalurl2();" >
+                        <option name="col-xl-3 col-lg-4 col-md-5 lnr-arrow-right" value="" id="price-placeholder"  disabled selected hidden>Filter</option>
+                        <option class="lnr-arrow-right" value="all">ALL PRODUCT</option>
+                        {% for i in sub %}
+                            {% if i.is_deleted %}
+                                <option class="lnr-arrow-right " value="{{ i.id }}">{{ i.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                      </select>
+                    </div>
+            </div>
+            <div class="col-xl-9 col-lg-8 col-md-7">
+                
+                <!-- Start Filter Bar -->
+                <div class="filter-bar d-flex flex-wrap align-items-center">
+                    
+                    <div class="sorting">
+                        <div class="dropdown">
+                            <!-- <a class="btn dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" style="color: white;">
+                              Sort
+                            </a>
+                            <ul class="dropdown-menu" name="sort" id="sort_list" onchange="location=finalurl();" aria-labelledby="dropdownMenuLink">
+                              <li><a class="dropdown-item" href="" id="low" value="low" >Price:low-High</a></li>
+                              <li><a class="dropdown-item" href="" id="high" value="high">Price:High-low</a></li>
+                            
+                            </ul> -->
+                            <select class="sort" name="sort" id="sort-list" onchange="location = finalurl();" style="margin-left: auto;" >
+                                <option class="sort" value="" id="placeholder" disabled selected hidden>Sort</option>
+                                <option id="price" value="price">Low To High</option>
+                                <option id="-price" value="-price">High To Low</option>
+                            
+                              </select>   
+                          </div>
+                    </div>            
+                    
+                    <div class="sorting mr-auto">
+                        <!-- < <select>
+                            <option value="1">Show 12</option>
+                            <option value="1">Show 12</option>
+                            <option value="1">Show 12</option>
+                        </select> -->
+                    </div>  
+             
+    
+                {% comment %} <div class="pagination border-0">
+                    {% if pro.has_previous %}
+                    <a href="#" class="prev-arrow rounded-circle mr-1" onclick="updatePage({{ pro.previous_page_number }})"><i class="fa fa-long-arrow-left" aria-hidden="true"></i></a>
+                    {% endif %}
+                
+                    <a href="#" class="rounded-circle mr-1" onclick="updatePage(1)"><span class="current">1</span></a>
+                    <a href="" class="active rounded-circle mr-1" onclick="updatePage({{ pro.number }})"><span class="current">{{ pro.number }}</span></a>
+                    <a href="#" class="rounded-circle mr-1" onclick="updatePage({{ pro.paginator.num_pages }})"><span class="current">{{ pro.paginator.num_pages }}</span></a>
+                
+                    {% if pro.has_next %}
+                    <a href="#" class="next-arrow rounded-circle mr-1" onclick="updatePage({{ pro.next_page_number }})"><i class="fa fa-long-arrow-right" aria-hidden="true"></i></a>
+                    {% endif %}
+                </div> {% endcomment %}
+                
+                </div>
+                     <!-- Related to sidebar and nav of shopping -End  -->
+                <br>
+                <br>
+    
+        <div class="single-product-slider">
+            <div class="container">
+                <div class="row justify-content-center">
+                    {% if pro %}
+                    {% for pro in pro %}
+                       {% if pro.is_deleted == True %}
+                        <div class="col-sm-6 col-lg-3 mx-auto">
+                            <div class="single-product">
+                                <img class="img-fluid" src="{{ pro.image.url }}"
+                                     style="width: 200px; height: 200px; object-fit: cover;">
+                                <div class="product-details">
+                                    <h4>{{ pro.name }}</h4>
+                                    <div class="price">
+                                        {% if pro.offer_price >= 1 %}
+                                            
+                                        <h5><strong class="product-price my-1">
+                                             <del class="m-1">₹ {{pro.price}}</del>
+                                             <h6>({{pro.discount}}% off)</h6>
+                                        </strong></h5>
+                                        <h4><strong>₹ {{pro.offer_price}}</strong></h4>
+                                        
+                                        
+                                    {% else %} 
+                                        <h4 class="product-price"><strong>₹ {{pro.price}}</strong></h4>
+                                {% endif %}
+                                    </div>
+                                   <div class="prd-bottom">
+                                    <style>
+                                        .btn-primary {
+                                            padding: 1px 1px; /* Minimal padding */
+                                            font-size: 14px; /* Smaller font size */
+                                            border-radius: 5px;
+                                            color: white; /* Change text color to white */
+                                            background-color: #007bff; /* Ensure the background color is set to match the original button color */
+                                            border-color: #007bff; /* Ensure the border color matches the original button color */
+                                        }
+                                    
+                                        .btn-primary:hover {
+                                            background-color: #0056b3; /* Adjust hover background color if needed */
+                                            border-color: #0056b3; /* Adjust hover border color if needed */
+                                        }
+                                    
+                                        .btn-primary .hover-text {
+                                            color: white; /* Ensure the hover text color is white */
+                                        }
+                                    </style>
+                                    
+                                    <button type="button" class="btn btn-primary add-to-wishlist" data-product-id="{{pro.id }}">
+                                        {% csrf_token %}
+                                        <span class="lnr lnr-heart"></span>
+                                        <p class="hover-text">Wishlist</p>
+                                    </button>
+                                    
+                                    <!-- View More Button -->
+                                    <button type="button" class="btn btn-primary view-more">
+                                        <a href="{% url 'view_product' pro.id %} " class="social-info">
+                                            <span class="lnr lnr-move"></span>
+                                            <p class="hover-text">View More</p>
+                                        </a>
+                                    </button>
+                                    
+</div>
+
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    {% else%}
+    
+                     <div class="container">
+                                <div class="row">
+                                    <div class="col-lg-12 order-lg-2 order-1 text-center">
+                                        <div class="f-icon">
+                                            <img src="{% static 'img/not found.jpg' %}" alt="" class="img-fluid"
+                                                id="notFoundImage">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    
+                    
+    
+                     {% endif %}
+                </div>
+            </div>
+        </div>
+                        
+    
+    
+    
+    </div></div></div>
+    
+    
+    </body>
+    
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<script>
+    var swiper = new Swiper('.swiper-container', {
+        slidesPerView: 3,
+        spaceBetween: 30,
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+    });
+</script>
+<script> 
+    $(document).ready(function() {
+      $('.add-to-wishlist').click(function(e) {
+          e.preventDefault(); // Prevent default link behavior
+          
+          var productId = $(this).data('product-id');
+          var token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        console.log(productId)
+        console.log(token)
+          var data = {
+              'product_id': productId,
+              "csrfmiddlewaretoken": token,
+          };
+          console.log(data)
+          fetch('{% url "add_wishlist" %}', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': token,
+        // Add any additional headers if needed
+    },
+    body: JSON.stringify(data),
+})
+.then(response => {
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+})
+.then(response => {
+    console.log(response.success)
+    if (response.success === 'added') {
+        toastr.success('Product added to wishlist successfully');
+    } else if (response.success === 'already') {
+      
+        toastr.warning('Product already in Wishlist');
+    } else if (response.success === 'cart already') {
+        toastr.warning('Product already in Cart');
+    } else {
+        toastr.warning('Failed to add product to wishlist');
+    }
+})
+.catch(error => {
+    console.error('There was a problem with the fetch operation:', error);
+    alert('An error occurred');
+});
+      });
+  });
+
+</script>
+<script>
+    // for getting the sorting status to be displayed in sorting dropdown placeholder
+    function get(name) {
+      if (name = (new RegExp('[?&]' + encodeURIComponent(name) + '=([^&]*)')).exec(location.search))  //location.search give query sling part
+        return decodeURIComponent(name[1]);
+    }
+  
+    if(get('sorting'))
+    document.getElementById('placeholder').innerHTML = "" + document.getElementById(get('sorting')).innerHTML;
+  
+    if(get('filter'))
+    document.getElementById('price-placeholder').innerHTML = "Price: " + document.getElementById('pr'+get('filter')).innerHTML;
+  
+  
+    // for getting url after applying ordering
+    function finalurl() {
+      var url = new URL(window.location.href);
+      var search_params = url.searchParams;
+      search_params.set('sorting', document.getElementById("sort-list").value);
+      url.search = search_params.toString();
+      var new_url = url.toString();
+      return new_url
+    }
+    
+    // for getting url after applying price filtering
+
+    function finalurl2() {
+        var url = new URL(window.location.href);
+        var search_params = url.searchParams;
+        search_params.set('filter', document.getElementById("filter").value);
+        url.search = search_params.toString();
+        var new_url = url.toString();
+        return new_url
+      }
+    
+      function updatePage(pageNumber) {
+        var url = new URL(window.location.href);
+        var searchParams = url.searchParams;
+        searchParams.set('page', pageNumber);
+        url.search = searchParams.toString();
+        var newUrl = url.toString();
+        window.location.href = newUrl;
+    }
+
+  </script>
+    </html>
+{% endblock%}

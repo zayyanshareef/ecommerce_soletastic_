@@ -1,0 +1,199 @@
+{% extends "user_dashboard/dashboard.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+    .btn-orange {
+        background-color: gold;
+        color: white;
+    }
+</style>
+
+    <!-- Start Header Area -->
+
+        <!-- Start Banner Section -->
+        <section class="banner-area organic-breadcrumb">
+            <div class="container">
+                <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+                    <div class="col-first">
+                        <h1>Shopping</h1>
+                        <nav class="d-flex align-items-center">
+                            <a href="#">Home<span class="lnr lnr-arrow-right"></span></a>
+                            <a href="#">Checkout</a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+{% if value %}
+<div class="container d-flex flex-column align-items-center mt-5">
+    <h1 class="mb-4 text-center">Order History</h1>
+</div>
+  {% for item,order in value%}
+    <div class="container mt-5">
+      <ul class="list-group">
+        <li class="list-group-item mb-3">
+          <div class="d-flex justify-content-between">
+            <div>
+            
+              <!-- Your order information here -->
+              <h5>Order ID : {{item.order_id }}</h5>
+              <p>Status : {{ item.status }}</p>
+              <p>Order Date : {{ item.created_date|date }}</p>
+              <p>Amount : ₹{{ item.total_amount }}</p>
+             
+            
+              <h6>Address:</h6>
+              <p>
+                Name : {{ order.address.name }} <br>
+                {{ order.address.house }},
+                {{ order.address.city }}, 
+                {{ order.address.state }},
+                {{ order.address.pin_code }}<br>
+                Phone: {{ order.address.phone }}<br>
+              </p>
+
+              <!-- Additional content for your order here -->
+
+              <div class="mt-1">
+                <a class="btn btn-orange" href="{% url 'order_details' item.id %}"> Order Details</a>
+              </div>
+              
+            </div>
+           <div>
+            {% if item.status == 'pending' or item.status == 'processing' %}
+            <a class="btn btn-orange" style="color: white;" onclick="confirm('{% url 'cancellation' item.id %}')">Cancel</a>
+
+            {% elif item.status == 'delivered' %}
+            <a class="btn btn-orange" style="color: white;" onclick="confirm('{% url 'return' item.id %}')">Return</a>
+
+            {% endif %}
+            </div>
+          </div>
+          <!-- Add more HTML content for your order if needed -->
+      </ul>
+    
+    </div>
+  {% endfor %}
+{% else %}
+<div class="d-flex justify-content-center m-5">
+    <h1>No Orders Available</h1>
+</div>
+{% endif %}
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+        <script>
+            function confirm(itemId) {
+           Swal.fire({
+               title: "Are you sure?",
+               text: "Are you sure you want to proceed?",
+               icon: "warning",
+               showCancelButton: true,  
+               confirmButtonColor: "#3085d6",
+               cancelButtonColor: "#d33",
+               confirmButtonText: "Confirm",
+               cancelButtonText: "Cancel",  
+               dangerMode: true,
+           })
+           .then((result) => {
+               if (result.isConfirmed) {
+                
+                   window.location.href = itemId;
+               } else {
+                   console.log("User canceled");
+               }
+           });
+       }
+        </script>
+        <script>
+            
+            document.addEventListener('DOMContentLoaded', function () {
+                const starContainers = document.querySelectorAll('.star-rating');
+        
+                starContainers.forEach(container => {
+                    const stars = container.querySelectorAll('.fa-star');
+        
+                    stars.forEach(star => {
+                        star.addEventListener('click', function () {
+                            const rating = parseInt(this.getAttribute('data-star-value'));
+                            const productId = container.getAttribute('data-product-id');
+                            setRating(productId, rating);
+        
+                            stars.forEach(s => s.classList.remove('selected'));
+        
+                            for (let i = 1; i <= rating; i++) {
+                                stars[i - 1].classList.add('selected');
+                            }
+                            document.getElementById('rating').value=rating;
+                        });
+                    });
+                });
+        
+                function setRating(productId, rating) {
+                   
+                    console.log(`Product ID: ${productId}, Rating: ${rating}`);
+                }
+            });
+        </script>
+        <script>
+        function confirmCancel(orderId) {
+            consol.log("coming.......")
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Are you sure you want to cancel this order?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Confirm",
+                cancelButtonText: "Cancel",
+                dangerMode: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    console.log(".................12212")
+                    fetch('', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({
+                            'order_id': orderId,
+                            'action': 'cancel'
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to cancel the order.');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire("Cancelled!", "Your order has been cancelled.", "success");
+                           
+                        } else {
+                            Swal.fire("Error!", "Failed to cancel the order.", "error");
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire("Error!", error.message, "error");
+                    });
+                }
+            });
+        }
+    </script>
+        
+        
+        <style>
+            .fa-star.selected {
+                color: gold;
+            }
+        </style>
+
+
+{% endblock %}

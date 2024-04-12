@@ -1,0 +1,401 @@
+{% extends "user_dashboard/dashboard.html" %}
+{% load static %}
+{% block content %}
+<!-- offcanvas area start -->
+<div class="offcanvas__area">
+    <div class="offcanvas__wrapper">
+    <div class="offcanvas__close">
+        <button class="offcanvas__close-btn" id="offcanvas__close-btn">
+            <i class="fal fa-times"></i>
+        </button>
+    </div>
+    <div class="offcanvas__content">
+        <div class="offcanvas__logo mb-40">
+            <a href="index.html">
+            <img src="assets/img/logo/logo-white.png" alt="logo">
+            </a>
+        </div>
+        <div class="offcanvas__search mb-25">
+            <form action="">
+                <input type="text" placeholder="What are you searching for?">
+                <button type="submit" ><i class="far fa-search"></i></button>
+            </form>
+        </div>
+        <div class="mobile-menu fix"></div>
+        <div class="offcanvas__action">
+
+        </div>
+    </div>
+    </div>
+</div>
+<!-- offcanvas area end -->      
+<div class="body-overlay"></div>
+<!-- offcanvas area end -->
+
+<main>
+    <!-- page-banner-area-start -->
+    <div class="page-banner-area page-banner-height-2" data-background="{% static 'assets/img/banner/page-banner-4.jpg' %}">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="page-banner-content text-center">
+                        <h4 class="breadcrumb-title">Your Cart</h4>
+                        <div class="breadcrumb-two">
+                            <nav>
+                               <nav class="breadcrumb-trail breadcrumbs">
+                                  <ul class="breadcrumb-menu">
+                                     <li class="breadcrumb-trail">
+                                        <a href="{% url 'dashboard' %}"><span>Home</span></a>
+                                     </li>
+                                     <li class="trail-item">
+                                        <span>Cart</span>
+                                     </li>
+                                  </ul>
+                               </nav> 
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- page-banner-area-end -->
+
+
+
+
+    <style>
+        .empty-cart-message {
+    font-size: 16px;
+    color: #888;
+}
+
+.empty-cart-message a {
+    color: #007bff; 
+    text-decoration: underline;
+}
+    .delete-button {
+        background-color: #dc3545; /* Red color, you can change this */
+        color: #fff; /* Text color */
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .delete-button:hover {
+        background-color: #c82333; /* Darker red color on hover, you can change this */
+    }
+
+
+    .small-button {
+    font-size: 0.8em; /* Adjust the font size as needed */
+    padding: 5px 10px; /* Adjust padding as needed */
+}
+
+.product_count {
+    display: flex;
+    align-items: center;
+}
+.input-text.qty {
+    width: 50px; /* Adjust the width as needed */
+    font-size: 0.8em; /* Adjust the font size as needed */
+    padding: 5px; /* Adjust padding as needed */
+}
+
+.blue_btn {
+    background-color: blue;
+    color: white;
+    margin-left: 10px; /* Adjust the amount of space as needed */
+}
+
+.gray_btn {
+    margin-right: 10px; /* Adjust the amount of space as needed */
+}
+
+.blue_btn:hover {
+    background-color: darkblue; /* Change color on hover if desired */
+}
+
+
+
+    
+</style>
+
+
+
+</head>
+
+<body>
+
+    <!-- Start Header Area -->
+        <!-- End Header Area -->
+        <!-- Start Banner Section -->
+ 
+
+        <section class="cart_area">
+            <div class="container">
+                <div class="cart_inner">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Product</th>
+                                    <th scope="col">Size</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Total</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if cart %}
+                                    {% for cart_item in cart %}
+                                        <tr>
+                                            <td class="product-details">
+                                                <div class="media">
+                                                    <div class="d-flex">
+                                                        <img src="{{ cart_item.product.image.url }}" alt="Product Image" style="height: 125px; width: 125px;">
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <p>{{ cart_item.product.name }}</p>
+                                                        <p>
+                                                            {% if not cart_item.size %}
+                                                                <span class="out-of-stock-message text-danger">Out of Stock</span>
+                                                            {% endif %}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="product-size">Size: {{ cart_item.size }}</td>
+                                            <td class="product-price">
+                                                <h5>₹ {{ cart_item.price }}</h5>
+                                            </td>
+                                            <td class="product-quantity">
+                                                {% csrf_token %}
+                                                <button onclick="updateQuantity('{{ cart_item.id }}', -1)" class="reduced items-count small-button" type="button"><i class="lnr lnr-chevron-down"></i>-</button>
+                                                <input type="text" name="qty" id="sst{{ cart_item.id }}" maxlength="12" value="{{ cart_item.qty }}" title="Quantity:" class="input-text qty">
+                                                <button onclick="updateQuantity('{{ cart_item.id }}', 1)" class="increase items-count small-button" type="button"><i class="lnr lnr-chevron-up"></i>+</button>
+                                            </td>   
+                                            <td class="product-total">
+                                                <h5 id="total{{ cart_item.id }}">₹ {{ cart_item.total_price }}</h5>
+                                            </td>
+                                            <td class="product-actions">
+                                                <button onclick="confirmDelete('{% url 'delete_cart' cart_item.id %}')" class="delete-button">Delete</button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="empty-cart-message text-center py-3">
+                                            Your cart is empty. <a href="/" class="text-primary">Explore our products</a> and add items to your cart!
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                <tr>
+                                    <td colspan="5" class="subtotal">
+                                        <h5>Subtotal</h5>
+                                    </td>
+                                    <td class="subtotal-amount">
+                                        <h5 id="subtotal">
+                                            {% if not sub_total %}
+                                                ₹ {{ data.cart_subtotal2w }}
+                                            {% else %}
+                                                ₹ {{ sub_total }}
+                                            {% endif %}
+                                        </h5>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="container">
+                            {% for error in messages %}
+                                <p class="text-center" style="color:red">{{error}}</p>
+                            {% endfor %}
+                        </div>
+                        <tr class="shipping_area">
+                            <td colspan="6"></td>
+                        </tr>
+                        <tr class="out_button_area">
+                            <td colspan="4">
+                                <div class="checkout_btn_inner d-flex align-items-center justify-content-end">
+                                    <a class="btn gray_btn blue_btn" href="{% url 'dashboard'%}">Continue Shopping</a>
+                                    {% if cart %}
+                                        <a class="btn blue_btn" href="{% url 'checkout'%}" id="checkout" type="submit">Proceed to checkout</a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+  
+    <!-- cta-area-start -->
+    <section class="cta-area d-ldark-bg pt-55 pb-10">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6">
+                    <div class="cta-item cta-item-d mb-30">
+                        <h5 class="cta-title">Follow Us</h5>
+                        <p>We make consolidating, marketing and tracking your social media website easy.</p>
+                        <div class="cta-social">
+                            <div class="social-icon">
+                                <a href="#" class="facebook"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#" class="twitter"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="youtube"><i class="fab fa-youtube"></i></a>
+                                <a href="#" class="linkedin"><i class="fab fa-linkedin-in"></i></a>
+                                <a href="#" class="rss"><i class="fas fa-rss"></i></a>
+                                <a href="#" class="dribbble"><i class="fab fa-dribbble"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="cta-item mb-30">
+                        <h5 class="cta-title">Sign Up To Newsletter</h5>
+                        <p>Join 60.000+ subscribers and get a new discount coupon  on every Saturday.</p>
+                        <div class="subscribe__form">
+                            <form action="#">
+                                <input type="email" placeholder="Enter your email here...">
+                                <button>subscribe</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="cta-item mb-30">
+                        <h5 class="cta-title">Download App</h5>
+                        <p>soletatstic App is now available on App Store & Google Play. Get it now.</p>
+                        <div class="cta-apps">
+                            <div class="apps-store">
+                                <a href="#"><img src="assets/img/brand/app_ios.png" alt=""></a>
+                                <a href="#"><img src="assets/img/brand/app_android.png" alt=""></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+    <!-- cta-area-end -->
+
+</main>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+
+    <script>
+        function confirmDelete(deleteUrl) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Are you sure you want to delete?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Confirm",
+                cancelButtonText: "Cancel",
+                dangerMode: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirect to the delete URL
+                    window.location.href = deleteUrl;  // Corrected to use deleteUrl
+                } else {
+                    console.log("User canceled");
+                }
+            });
+        }
+    </script>
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+    <script>
+        function updateQuantity(cartItemId, change) {
+            var quantityInput = document.getElementById('sst' + cartItemId);
+            var newQuantity = parseInt(quantityInput.value) + change;
+    
+            // Ensure the new quantity is not negative
+            if (newQuantity >= 1) {
+                quantityInput.value = newQuantity;
+    
+                console.log(newQuantity)
+                // Use AJAX to update the quantity and get the updated total price and subtotal from the server
+                updateQuantityOnServer(cartItemId, newQuantity, function(data) {
+                    // Handle the response from the server
+                    if (data.success) {
+                        // Update the total price in the HTML
+                        var totalPriceElement = document.getElementById('total' + cartItemId);
+                        if (totalPriceElement) {
+                            totalPriceElement.textContent = '₹ ' + data.total_price;
+                        }
+    
+                        // Update the subtotal in the HTML
+                        updateSubtotal(data.cart_subtotal2w);
+                    } else {
+                        // Show an error notification
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.error,
+                        });
+    
+                        // Revert the quantity to the previous value
+                        quantityInput.value -= change;
+                    }
+                });
+            }
+        }
+    
+        function updateSubtotal(cartSubtotal) {
+            // Update the subtotal in the HTML
+            var subtotalElement = document.getElementById('subtotal');
+            if (subtotalElement) {
+                subtotalElement.textContent = '₹ ' + cartSubtotal;
+            }
+        }
+    
+        function updateQuantityOnServer(cartItemId, newQuantity, callback) {
+            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+            // Use AJAX to send the updated quantity to the server (Django view)
+            fetch('/update-quantity/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: new URLSearchParams({
+                    cartItemId: cartItemId,
+                    newQuantity: newQuantity,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Invoke the callback with the response data
+                callback(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+
+    
+           
+{% endblock %}

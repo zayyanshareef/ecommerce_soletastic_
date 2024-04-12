@@ -1,0 +1,296 @@
+{% extends "user_dashboard/dashboard.html" %}
+{% load static  %}
+{% block content %}
+<!-- offcanvas area start -->
+<div class="offcanvas__area">
+    <div class="offcanvas__wrapper">
+    <div class="offcanvas__close">
+        <button class="offcanvas__close-btn" id="offcanvas__close-btn">
+            <i class="fal fa-times"></i>
+        </button>
+    </div>
+    <div class="offcanvas__content">
+        <div class="offcanvas__logo mb-40">
+            <a href="index.html">
+            <img src="assets/img/logo/logo-white.png" alt="logo">
+            </a>
+        </div>
+        <div class="offcanvas__search mb-25">
+            <form action="#">
+                <input type="text" placeholder="What are you searching for?">
+                <button type="submit" ><i class="far fa-search"></i></button>
+            </form>
+        </div>
+        <div class="mobile-menu fix"></div>
+        <div class="offcanvas__action">
+
+        </div>
+    </div>
+    </div>
+</div>
+<!-- offcanvas area end -->      
+<div class="body-overlay"></div>
+<!-- offcanvas area end -->
+
+<main>
+    <!-- page-banner-area-start -->
+    <div class="page-banner-area page-banner-height-2" data-background="{% static 'assets/img/banner/page-banner-4.jpg' %}">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="page-banner-content text-center">
+                        <h4 class="breadcrumb-title">Wishlist</h4>
+                        <div class="breadcrumb-two">
+                            <nav>
+                               <nav class="breadcrumb-trail breadcrumbs">
+                                  <ul class="breadcrumb-menu">
+                                     <li class="breadcrumb-trail">
+                                        <a href="{% url 'dashboard' %}"><span>Home</span></a>
+                                     </li>
+                                     <li class="trail-item">
+                                        <span>Wishlist</span>
+                                     </li>
+                                  </ul>
+                               </nav> 
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- page-banner-area-end -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/alertify.min.js"></script>
+<!-- Include Alertify CSS (for styling) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/css/alertify.min.css" />
+
+<!-- Include Toastr library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+
+<div class="single-product-slider my-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            {% if wish %}
+                {% for pro in wish %}
+                    {% if pro.product.is_deleted == True %}
+                        <div class="col-sm-6 col-lg-3 mx-auto">
+                            <div class="single-product">
+                                <img class="img-fluid" src="{{ pro.product.image.url }}"
+                                     style="width: 200px; height: 200px; object-fit: cover;">
+                                <div class="product-details">
+                                    <h4>{{ pro.product.name }}</h4>
+                                    <div class="price">
+                                        {% if pro.product.offer_price >= 1 %}
+									    
+                                        <h5><strong class="product-price my-1">
+                                             <del class="m-1">₹ {{pro.product.price}}</del>
+                                             <h6>({{pro.product.discount}}% off)</h6>
+                                        </strong></h5>
+                                        <h4><strong>₹ {{pro.product.offer_price}}</strong></h4>
+                                        
+                                        
+                                    {% else %} 
+                                        <h4 class="product-price"><strong>₹ {{pro.product.price}}</strong></h4>
+                                {% endif %}
+                                    </div>
+                                    <div class="prd-bottom">
+                                        <!-- Your original "Add to cart" button -->
+                                        <a href="#" class="social-info add-to-cart" data-product-id="{{ pro.product.id }}">
+                                            <span class="lnr lnr-cart"></span>
+                                            <p class="hover-text">Add cart</p>
+                                        </a>
+                                        <a href="{% url 'view_product' pro.product.id %}" class="social-info">
+                                            <span class="lnr lnr-move"></span>
+                                            <p class="hover-text">View More</p>
+                                        </a>
+                                        <a href="#"
+                                           onclick="confirmDelete('{% url 'remove_wishlist' pro.id %}')" class="social-info">
+                                            <span class="lnr lnr-trash"></span>
+                                            <p class="hover-text">Remove</p>
+                                        </a>
+                                    </div>
+                                    <!-- Hidden element to hold available sizes -->
+                                    <div id="product-sizes-{{ pro.product.id }}" style="display: none;">
+                                        {% for size in pro.product.product_size_set.all %}
+                                            {% if size.stock >= 1 %}
+                                                <input type="radio" id="size-{{ size.size }}" name="size" value="{{ size.size }}" class="hidden-radio" required>
+                                                <label for="size-{{ size.size }}" class="size-circle">{{ size.size }}</label>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <div class="f-icon">
+                    <img src="{% static 'img/not found.jpg' %}" alt="">
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Select Options</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="size-selector" id="size-selector">
+                    <!-- Size options will be dynamically added here -->
+                </div>
+                <input type="hidden" id="selected-product-id" value="">
+                <input type="hidden" value="1" id="prod_qty">
+                {% csrf_token %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="modal_add_cart" class="btn btn-primary">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+</div>
+                
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<script>
+    $(document).ready(function() {
+        $('#modal_add_cart').click(function(e) {
+            e.preventDefault();
+           
+            var product_id = document.getElementById("selected-product-id").value;
+            var product_qty = document.getElementById("prod_qty").value;
+            var product_size = $('input[name="size"]:checked').val();
+            var token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+         
+
+            fetch("/add_to_cart/", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": token // assuming you have obtained the CSRF token
+    },
+    body: JSON.stringify({
+        product_id: product_id,
+        product_qty: product_qty,
+        product_size: product_size
+    })
+})
+.then(response => {
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+})
+.then(data => {
+    console.log(data);
+    if (data.status === "Product added successfully") {
+        toastr.success(data.status);
+        setTimeout(function() {
+            window.location.reload();
+        }, 1000);
+    } else {
+        toastr.warning(data.status);
+    }
+})
+.catch(error => {
+    console.error('There was a problem with the fetch operation:', error);
+    alertify.error("An error occurred. Please try again.");
+});
+        });
+    });
+</script>
+
+
+
+<script>
+    // Check for the selected size before fetching data
+    document.getElementById('modal_add_cart').addEventListener('click', function () {
+        var selectedSize = $('input[name="size"]:checked').val();
+        
+       
+        if (!selectedSize) {
+      
+            // Display a Toastr notification
+            toastr.warning('Please select a size before adding to cart.');
+            return; // Stop execution if size is not selected
+        }
+
+        var product_id = document.getElementById("selected-product-id").value;
+        var product_qty = document.getElementById("prod_qty").value;
+        var product_size = selectedSize.value;
+        var token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Now you can proceed with fetching data using product_id, product_qty, product_size, and token
+        // ...
+    });
+</script>
+
+<script>
+    // Function to update size options in the modal based on selected product
+    function updateSizeOptions(productId) {
+      
+        var sizeSelector = document.getElementById('size-selector');
+        var productSizes = document.getElementById('product-sizes-' + productId).innerHTML;
+        sizeSelector.innerHTML = productSizes;
+        document.getElementById('selected-product-id').value = productId;
+        console.log(sizeSelector)
+        console.log(productSizes)
+  
+    }
+  
+    // Function to handle "Add to Cart" button click
+
+
+    // Event listener to update size options when the modal is shown
+    $(document).ready(function() {
+    $('.add-to-cart').click(function(event) {
+        event.preventDefault(); // Prevent default behavior of anchor tag
+        var productId = $(this).data('product-id');
+        updateSizeOptions(productId);
+        $('#selected-product-id').val(productId); // Set the selected product ID in the hidden input
+        $('#myModal').modal('show'); // Show the modal
+    });
+    
+    // Function to handle the "Add to Cart" button click within the modal
+    $('#modal_add_cart').click(function() {
+        addToCart(); // Call the addToCart function
+    });
+});
+</script>
+
+<script>
+    function confirmDelete(deleteUrl) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Are you sure you want to Remove?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Confirm",
+            cancelButtonText: "Cancel",
+            dangerMode: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to the delete URL
+                window.location.href = deleteUrl;  // Corrected to use deleteUrl
+            } else {
+                console.log("User canceled");
+            }
+        });
+    }
+</script>
+
+{% endblock %}

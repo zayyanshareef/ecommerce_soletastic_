@@ -62,9 +62,9 @@ def Admin(request):
                 return redirect("admin_dashboard")
             else:
                 messages.error(request, "Email or Password mismatch")
-                return render(request, "Admin/admin_login.html")
+                return render(request, "admin/admin_login.html")
             
-        return render(request, "Admin/admin_login.html")
+        return render(request, "admin/admin_login.html")
     
     except Exception as e:
 

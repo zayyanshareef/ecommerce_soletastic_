@@ -129,6 +129,7 @@ def Signup(request):
 
             except Exception as e:
                  
+                 print("----",e)
                  messages.error(request,"OTP genaration failed")
                  return redirect('signup')
 

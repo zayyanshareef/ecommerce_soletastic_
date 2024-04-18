@@ -280,7 +280,6 @@
                                             <a href="">Pages <i class="far fa-angle-down"></i></a>
                                             <ul class="submenu">
                                                 <li><a href="{% url 'user_profile' %}">My Account</a></li>
-                                                <li><a href="product-details.html">Product Details</a></li>
                                                 <li><a href="{% url 'my_order' %}">My Order</a></li>
                                                 <li><a href="{% url 'user_cart' %}">Cart</a></li>
                                                 <li><a href="{% url 'user_wishlist' %}">Wishlist</a></li>
@@ -297,7 +296,7 @@
                         </div>
                         <div class="col-lg-3 col-md-6 col-9">
                             <div class="shopeing-text text-sm-end">
-                                <p>Cash on delivery available only above ₹ 1000</p>
+                                <p>Cash on delivery available only above ₹ 999</p>
                             </div>
                         </div>
                     </div>
@@ -348,7 +347,7 @@
                         <div class="col-xl-5">
                             <div class="slider-content">
                                 <div class="slider-top-btn" data-animation="fadeInLeft" data-delay="1s">
-                                    <a href="product-details.html" class="st-btn b-radius">New Arraivels</a>
+                                    <a href="{% url 'all_product' %}" class="st-btn b-radius">New Arraivels</a>
                                 </div>
                                 <h2 data-animation="fadeInLeft" data-delay="1.5s" class="pt-15 slider-title pb-5"> Nike Air Zoom Mercurial Vapor 15 Elite FG XXV - Metallic Silver/Volt/Black </h2>
                                

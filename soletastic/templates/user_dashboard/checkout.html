@@ -91,12 +91,9 @@
     </div>
 
 
-    <form id="orderForm" method="post" action="{% url 'user_order' %}">
-        {% csrf_token %}
 
 
-
-        <!-- </form> -->
+      
 
         </div>
         </div>
@@ -168,7 +165,6 @@
                         <a href="#addAddressModal" class="btn btn-primary btn-md ml-3" data-toggle="modal"
                             data-target="#addAddressModal">Add Address</a>
 
-                        <!-- </form> -->
                 </div>
 
 
@@ -229,8 +225,8 @@
 
 
                             <div class="radion_btn">
-                                <input type="radio" id="f-option6" name="paymentMethod" value="cashOnDelivery">
-                                    <!-- onclick="handlePaymentMethodSelection()" > -->
+                                <input type="radio" id="f-option6" name="paymentMethod" value="cashOnDelivery"
+                                    onclick="handlePaymentMethodSelection()" required>
                                 <label for="f-option6">Cash on Delivery</label>
                                 <div class="check"></div>
 
@@ -241,6 +237,13 @@
                                 <input type="radio" id="f-option7" name="paymentMethod" value="wallet"
                                     onclick="handlePaymentMethodSelection()" required>
                                 <label for="f-option7">Wallet</label>
+                                <div class="check"></div>
+                            </div>
+
+                            <div class="radion_btn ">
+                                <input type="radio" id="f-option5" name="paymentMethod" value="upi" onclick="handlePaymentMethodSelection()"
+                                    required>
+                                <label for="f-option5">UPI PAYMENT</label>
                                 <div class="check"></div>
                             </div>
                         </div>
@@ -256,14 +259,6 @@
                             Order</button>
 
 
-              </form>
-
-              <div class="radion_btn ">
-                <input type="radio" id="f-option5" name="paymentMethod" value="upi" onclick="handlePaymentMethodSelection()"
-                    required>
-                <label for="f-option5">UPI PAYMENT</label>
-                <div class="check"></div>
-            </div>
 
 
     
@@ -781,14 +776,14 @@
 
 
 
-    document.addEventListener('DOMContentLoaded',function(){
+document.addEventListener('DOMContentLoaded',function(){
         document.getElementById('proceed').addEventListener('click', proceedToOrder);
         async function proceedToOrder() {
         var selectedAddress = document.querySelector('input[name="address"]:checked');
         var selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
         var payment = document.getElementById('pay').getAttribute('value');
         const csrfToken = getCookie('csrftoken');
-        console.log("--",selectedAddress,"--",selectedPayment,"--",payment)
+        console.log("--1",selectedAddress,"--2",selectedPayment,"--3",payment)
 
         if (!selectedAddress) {
             Swal.fire({
@@ -821,6 +816,7 @@
                 timer: 3000
             });
         } else if (selectedPayment.value == 'upi') {
+            console.log("razerrpay")
             try {
                 const response = await fetch("/pay_with_upi/", { method: "GET" });
                 const data = await response.json();
@@ -890,9 +886,106 @@
                 console.error('Error:', error);
             }
         } else if (selectedPayment.value == "cashOnDelivery") {
-            document.getElementById('orderForm').submit();
+
+            var token = document.querySelector('[name="csrfmiddlewaretoken"]').value;
+            var selectedAddress = document.querySelector('input[name="address"]:checked').value;
+            let address_id = selectedAddress;
+
+            console.log(token)
+            console.log(selectedAddress)
+            console.log(address_id)
+
+            var data = {
+                            "payment_mode": "cashOnDelivery",
+                            
+                            "address_id": selectedAddress,
+                            "csrfmiddlewaretoken": token,
+                        };
+
+
+                         fetch("/user_order/", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify(data)
+                    })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+               
+                .then(response => {
+                    
+                    if (response.error) {
+                        window.location.reload();
+                    } else {
+                        console.log('Success:', response);
+                    window.location.href = "{% url 'confirmation' %}";
+                    }
+                })
+                
+                   
+                .catch(error => {
+                        console.error('There has been a problem with your fetch operation:', error);
+                    });
+
+
+            // document.getElementById('orderForm').submit();
         } else if (selectedPayment.value == "wallet") {
-            document.getElementById('orderForm').submit();
+            var token = document.querySelector('[name="csrfmiddlewaretoken"]').value;
+            var selectedAddress = document.querySelector('input[name="address"]:checked').value;
+            let address_id = selectedAddress;
+
+            console.log(token)
+            console.log(selectedAddress)
+            console.log(address_id)
+
+            var data = {
+                            "payment_mode": "wallet",
+                            
+                            "address_id": selectedAddress,
+                            "csrfmiddlewaretoken": token,
+                        };
+
+
+                         fetch("/user_order/", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify(data)
+                    })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(response => {
+                    if (response.error) {
+                        const errorMessage = document.createElement('p');
+                        errorMessage.textContent = response.error;
+                        document.getElementById('error-container').appendChild(errorMessage);
+                    } else {
+                        window.location.href = "{% url 'checkout' %}";
+                    }
+                })
+                .then(response => {
+                    console.log('Success:', response);
+                    window.location.href = "{% url 'confirmation' %}";
+                })
+                
+                   
+                .catch(error => {
+                        console.error('There has been a problem with your fetch operation:', error);
+                    });
+
+            // document.getElementById('orderForm').submit();
         }
     }
 

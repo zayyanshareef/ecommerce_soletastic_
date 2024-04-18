@@ -20,6 +20,8 @@ from django.contrib.auth import authenticate
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_GET
 from datetime import datetime
+import json
+
 
 
 
@@ -32,12 +34,12 @@ from datetime import datetime
 def Dashboard(request):
 
     prod = Product.objects.all()
-    for i in prod:
-        print(i.name)
+   
     context = {
+
         'prod': prod
     }
-    return render(request, 'user_dashboard/dashboard.html', context)
+    return render(request,'user_dashboard/dashboard.html',context)
 
 
 # ///////////////////////////////..All product..//////////////
@@ -667,10 +669,9 @@ def Checkout_edit_address(request):
             pattern_email = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
             pattern_Phone = r'^(?!0{10}$)\d{10}$'
 
-            print("zzzzzzzzzzzzzzzzzz")
+           
             if not (E_name or E_email or E_phone or E_house or E_street or E_city or E_state or E_country or E_pincode or E_location):
                 messages.error(request, "Please Fill Required Field")
-                print("...........1221212")
                 return redirect("address")
 
             if not all(re.match(pattern, value) and value.strip() for value in [E_name, E_house, E_street, E_city, E_country, E_pincode, E_location]):
@@ -746,7 +747,6 @@ def Checkout_add_address(request):
                                             customuser=value,
                                             )
 
-                print("<,,,,,,,,,,,,,,,3244234")
                 return redirect("checkout")
             return redirect("login")
     except Exception as e:
@@ -811,14 +811,17 @@ login_required(login_url='/user_auth/login/')
 def User_order(request):
     discount = 0
     if request.user.is_authenticated:
-        print(request.user, "----------")
 
         if request.method == 'POST':
             user = Custom_User.objects.get(email=request.user)
             user_id = Custom_User.objects.get(id=user.id)
-            address = request.POST.get('address')
-            payment_method = request.POST.get('paymentMethod')
-            print("payment method", payment_method)
+
+            data = json.loads(request.body)
+            
+            
+            payment_method = data.get("payment_mode")
+            address = data.get("address_id")
+         
 
             total = Cart.objects.filter(customuser=user_id).aggregate(total=Sum('total_price'))
             address = User_Address.objects.filter(id=address)
@@ -840,7 +843,8 @@ def User_order(request):
 
 
             if payment_method == 'cashOnDelivery' and address:
-                if total['total'] is not None and total['total'] >= 1000:
+                if total['total'] is not None and total['total'] >= 999:
+
                     valid_amount = 0
                     if coupon_id:
                         coupon = Coupon.objects.filter(id=coupon_id)
@@ -881,7 +885,11 @@ def User_order(request):
                                 Product_size.objects.filter(product=i.product, size=i.size).update(stock=new_stock)
                                 Cart.objects.filter(customuser=user_id).delete()
                                 request.session['coupon_id'] = None
+                                return JsonResponse({"message": "Payment processed successfully"})
+
                                 return redirect('confirmation')
+                            
+
                             else:
                                 messages.error(request, f"{i.product.name} out stock please choose any another product")
                                 return redirect("user_cart")
@@ -890,8 +898,11 @@ def User_order(request):
                             messages.error(request, f"Select any Address ")
                             return redirect("checkout")
                 else:
-                    messages.error(request, "Cash on delivery is only available for orders above ₹1000.")
-                    return redirect("checkout")
+           
+                    messages.error(request, "Cash on delivery is only available for orders above ₹999.")
+                    print("......inin")
+                    return JsonResponse({"error": "Cash on delivery is only available for orders above ₹999"})
+             
 
             
             elif  payment_method == "wallet" and address:
@@ -979,7 +990,8 @@ def User_order(request):
                                                     
                                 Cart.objects.filter(customuser=user_id).delete()
                                 request.session['coupon_id']=None
-                        
+                                return JsonResponse({"message": "Payment processed successfully"})
+
                                 return redirect('confirmation')                  
                                         
                             
@@ -991,7 +1003,6 @@ def User_order(request):
 
            
         if request.method == "POST":
-            print("....in")
             
             data = json.loads(request.body)
             

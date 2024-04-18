@@ -2,6 +2,27 @@
 {% load static  %}
 {% block content %}
 <!-- offcanvas area start -->
+
+<style>
+    .primary-button {
+    display: inline-block;
+    padding: 5px;
+    background-color: #007bff; /* Primary color */
+    color: #fff;
+    text-decoration: none;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.primary-button:hover {
+    background-color: #0056b3; /* Darker shade of primary color */
+}
+
+/* Optional: Adjust padding, font size, etc. as needed */
+
+</style>
 <div class="offcanvas__area">
     <div class="offcanvas__wrapper">
     <div class="offcanvas__close">
@@ -96,21 +117,25 @@
                                 {% endif %}
                                     </div>
                                     <div class="prd-bottom">
-                                        <!-- Your original "Add to cart" button -->
-                                        <a href="#" class="social-info add-to-cart" data-product-id="{{ pro.product.id }}">
+                                        <!-- Add to cart button -->
+                                        <a href="#" class="social-info add-to-cart primary-button" data-product-id="{{ pro.product.id }}">
                                             <span class="lnr lnr-cart"></span>
-                                            <p class="hover-text">Add cart</p>
+                                            <p class="hover-text" style="color: #fff;">Add cart</p>
                                         </a>
-                                        <a href="{% url 'view_product' pro.product.id %}" class="social-info">
+                                        
+                                        <!-- View More button -->
+                                        <a href="{% url 'view_product' pro.product.id %}" class="social-info primary-button">
                                             <span class="lnr lnr-move"></span>
-                                            <p class="hover-text">View More</p>
+                                            <p class="hover-text" style="color: #fff;">View More</p>
                                         </a>
-                                        <a href="#"
-                                           onclick="confirmDelete('{% url 'remove_wishlist' pro.id %}')" class="social-info">
+                                        
+                                        <!-- Remove button -->
+                                        <a href="#" onclick="confirmDelete('{% url 'remove_wishlist' pro.id %}')" class="social-info primary-button">
                                             <span class="lnr lnr-trash"></span>
-                                            <p class="hover-text">Remove</p>
+                                            <p class="hover-text" style="color: #fff;">Remove</p>
                                         </a>
                                     </div>
+                                    
                                     <!-- Hidden element to hold available sizes -->
                                     <div id="product-sizes-{{ pro.product.id }}" style="display: none;">
                                         {% for size in pro.product.product_size_set.all %}
